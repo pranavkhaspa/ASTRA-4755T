@@ -103,7 +103,7 @@
   }
   html, :host {
     line-height: 1.5;
-    
+    -webkit-text-size-adjust: 100%;
     tab-size: 4;
     font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
     font-feature-settings: var(--default-font-feature-settings, normal);
@@ -567,6 +567,9 @@
   }
   .resize {
     resize: both;
+  }
+  .resize-none {
+    resize: none;
   }
   .list-disc {
     list-style-type: disc;
@@ -1924,5 +1927,3 @@
     }
   }
 }
-
- 
