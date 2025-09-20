@@ -8,6 +8,7 @@ import Analyzer from "./components/Clarifier";
 import Conflict from "./components/Conflict";
 import Validate from "./components/Validate";
 import Priorities from "./components/Priorities";
+import Clarifier from "./components/Clarifier";
 import "./output.css";
 import ProfileDashboard from "./components/ProfileDashboard";
 
