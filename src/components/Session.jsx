@@ -35,7 +35,7 @@ const Session = () => {
       setIdea("");
 
       // Navigate to Clairifier with sessionId and userIdea
-      navigate("/clairifier", { state: { sessionId, userIdea: idea } });
+      navigate("/clarifier", { state: { sessionId, userIdea: idea } });
     } catch (err) {
       alert(err.response?.data?.error || "Failed to create session");
     }
