@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom"; // ✅ import both
 
-const Session = (props) => { // removed userId prop
+const Session = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [idea, setIdea] = useState("");
 
-  // Get userId from localStorage
   const location = useLocation();
-   const userId = location.state?.userId || localStorage.getItem("userId");
-console.log({ userIdea: idea, userId });
+  const navigate = useNavigate();
+
+  // ✅ Get userId from navigation state or fallback localStorage
+  const userId = location.state?.userId || localStorage.getItem("userId");
+  console.log({ userIdea: idea, userId });
 
   // Handle creating a new session
   const handleCreateSession = async () => {
@@ -18,18 +21,22 @@ console.log({ userIdea: idea, userId });
     }
 
     try {
-      // POST userIdea first, then userId
       const res = await axios.post(
         "https://astra-c8r4.onrender.com/api/session/start",
         { userIdea: idea, userId },
         { withCredentials: true }
       );
 
-      // Save returned sessionId to localStorage
-      localStorage.setItem("sessionId", res.data.sessionId);
+      const sessionId = res.data.sessionId;
 
-      alert(`Session created with ID: ${res.data.sessionId}`);
+      // ✅ Save to localStorage
+      localStorage.setItem("sessionId", sessionId);
+
+      alert(`Session created with ID: ${sessionId}`);
       setIdea("");
+
+      // ✅ Navigate to Agents page with sessionId
+      navigate("/agents", { state: { sessionId } });
     } catch (err) {
       alert(err.response?.data?.error || "Failed to create session");
     }

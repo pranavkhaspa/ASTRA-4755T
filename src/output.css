@@ -1074,6 +1074,9 @@
   .text-gray-300 {
     color: var(--color-gray-300);
   }
+  .text-gray-600 {
+    color: var(--color-gray-600);
+  }
   .text-purple-800 {
     color: var(--color-purple-800);
   }
