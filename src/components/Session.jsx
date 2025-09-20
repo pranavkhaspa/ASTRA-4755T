@@ -5,20 +5,24 @@ const Session = ({ userId }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [idea, setIdea] = useState("");
 
+  // Handle creating a new session
   const handleCreateSession = async () => {
     if (!idea || !userId) {
       alert("Please enter an idea and ensure userId is available.");
       return;
     }
+
     try {
-     
-    const res = await axios.post(
-      "https://astra-c8r4.onrender.com/api/session/start",
-      { userIdea: idea, userId },
-      { withCredentials: true }
-    );
-    localStorage.setItem("sessionId", res.data.sessionId);
-      
+      // POST userIdea first, then userId
+      const res = await axios.post(
+        "https://astra-c8r4.onrender.com/api/session/start",
+        { userIdea: idea, userId },
+        { withCredentials: true }
+      );
+
+      // Save returned sessionId to localStorage
+      localStorage.setItem("sessionId", res.data.sessionId);
+
       alert(`Session created with ID: ${res.data.sessionId}`);
       setIdea("");
     } catch (err) {
@@ -67,12 +71,8 @@ const Session = ({ userId }) => {
     <div className="relative w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 overflow-hidden">
       
       {/* Floating Blobs */}
-      <div
-        className="absolute w-80 h-80 bg-pink-500/40 rounded-full filter blur-3xl mix-blend-multiply top-20 left-20 animate-blob1"
-      ></div>
-      <div
-        className="absolute w-96 h-96 bg-yellow-400/30 rounded-full filter blur-3xl mix-blend-multiply bottom-20 right-20 animate-blob2"
-      ></div>
+      <div className="absolute w-80 h-80 bg-pink-500/40 rounded-full filter blur-3xl mix-blend-multiply top-20 left-20 animate-blob1"></div>
+      <div className="absolute w-96 h-96 bg-yellow-400/30 rounded-full filter blur-3xl mix-blend-multiply bottom-20 right-20 animate-blob2"></div>
 
       {/* Background Text */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
@@ -81,7 +81,7 @@ const Session = ({ userId }) => {
         </h1>
       </div>
 
-      {/* Navbar with Dropdown */}
+      {/* Navbar */}
       <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 flex justify-between items-center bg-black/30 backdrop-blur-lg text-white px-10 py-3 rounded-full shadow-lg z-10 w-[90%] max-w-6xl space-x-6">
         <div className="font-bold text-2xl tracking-widest">ASTRA</div>
 
@@ -92,8 +92,6 @@ const Session = ({ userId }) => {
               DASHBOARD
             </a>
           </li>
-
-          {/* Workspace Dropdown */}
           <li className="relative group">
             <button className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
               WORKSPACE
@@ -124,10 +122,7 @@ const Session = ({ userId }) => {
         </button>
 
         {/* Mobile Menu Toggle */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="text-white text-3xl md:hidden focus:outline-none z-30"
-        >
+        <button onClick={() => setMenuOpen(!menuOpen)} className="text-white text-3xl md:hidden focus:outline-none z-30">
           <MenuIcon />
         </button>
       </nav>
