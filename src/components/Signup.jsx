@@ -47,7 +47,7 @@ const Signup = () => {
         { withCredentials: true }
       );
 
-      localStorage.setItem("userId", res.data.id);
+      localStorage.setItem("userId", res.data.userId);
       alert(`User created with ID: ${res.data.userId}`);
 
       // Redirect to /login after successful signup

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Session = () => { // removed userId prop
+const Session = (props) => { // removed userId prop
   const [menuOpen, setMenuOpen] = useState(false);
   const [idea, setIdea] = useState("");
 
   // Get userId from localStorage
-  const userId = localStorage.getItem("userId");
+  const location = useLocation();
+   const userId = location.state?.userId || localStorage.getItem("userId");
 console.log({ userIdea: idea, userId });
 
   // Handle creating a new session

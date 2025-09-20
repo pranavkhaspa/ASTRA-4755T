@@ -1,20 +1,19 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import Session from './components/Session';
-import Signup from './components/Signup';
-import Login from './components/Login';
-import AgentsPage from './components/AgentsPage';
-import Analyzer from './components/Analyzer';
-import Conflict from './components/Conflict';
-import Validate from './components/Validate';
-import Priorities from './components/Priorities';
-import './output.css'
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Session from "./components/Session";
+import Signup from "./components/Signup";
+import Login from "./components/Login";
+import AgentsPage from "./components/AgentsPage";
+import Analyzer from "./components/Analyzer";
+import Conflict from "./components/Conflict";
+import Validate from "./components/Validate";
+import Priorities from "./components/Priorities";
+import "./output.css";
+
 function App() {
   return (
-    // Fixed Tailwind class: added a space and corrected max-h-screen usage
     <div className="max-w-full max-h-screen">
       <Routes>
-         
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/agents" element={<AgentsPage />} />

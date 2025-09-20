@@ -4,7 +4,7 @@ import axios from "axios";
 import { gsap } from "gsap";
 import { useNavigate } from "react-router-dom"; // <-- import useNavigate
 
-const Login = () => {
+const Login = (props) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,12 +46,12 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      localStorage.setItem("userId", res.data.userId);
+     localStorage.setItem("userId", res.data.userId);
       
       alert(res.data.message || "Login successful");
 
       // Redirect to /session after successful login
-      navigate("/session");
+       navigate("/session", { state: { userId } });
     } catch (err) {
       alert(err.response?.data?.error || "Login failed");
     }
