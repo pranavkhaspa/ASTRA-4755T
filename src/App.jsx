@@ -4,11 +4,12 @@ import Session from "./components/Session";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import AgentsPage from "./components/AgentsPage";
-import Analyzer from "./components/Analyzer";
+import Analyzer from "./components/Clarifier";
 import Conflict from "./components/Conflict";
 import Validate from "./components/Validate";
 import Priorities from "./components/Priorities";
 import "./output.css";
+import ProfileDashboard from "./components/ProfileDashboard";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/priorities" element={<Priorities />} />
         <Route path="/session" element={<Session />} />
         <Route path="/validate" element={<Validate />} />
+        <Route path="/Profile" element={<ProfileDashboard/>}></Route>
       </Routes>
     </div>
   );

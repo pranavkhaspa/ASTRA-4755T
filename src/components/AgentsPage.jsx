@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 
 // Import your component modules
-import Analyzer from "./Analyzer";
+import Analyzer from "./Clarifier";
 import Conflict from "./Conflict";
 import Validate from "./Validate";
 import Priorities from "./Priorities";
