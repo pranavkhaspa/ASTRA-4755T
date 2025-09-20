@@ -18,12 +18,12 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/agents" element={<AgentsPage />} />
-        <Route path="/analyzer" element={<Analyzer />} />
         <Route path="/conflict" element={<Conflict />} />
         <Route path="/priorities" element={<Priorities />} />
         <Route path="/session" element={<Session />} />
         <Route path="/validate" element={<Validate />} />
         <Route path="/Profile" element={<ProfileDashboard/>}></Route>
+        <Route path="/clarifier" element={<Clarifier/>}></Route>
       </Routes>
     </div>
   );
