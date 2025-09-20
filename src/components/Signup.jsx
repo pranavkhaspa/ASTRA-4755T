@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { FiMenu } from "react-icons/fi";
 import axios from "axios";
 import { gsap } from "gsap";
+import { useNavigate } from "react-router-dom"; // <-- import useNavigate
 
 const Signup = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -12,6 +13,8 @@ const Signup = () => {
   const cardRef = useRef(null);
   const blob1Ref = useRef(null);
   const blob2Ref = useRef(null);
+
+  const navigate = useNavigate(); // <-- initialize navigate
 
   useEffect(() => {
     // Animate card entrance
@@ -43,8 +46,12 @@ const Signup = () => {
         { username: fullName, email, password },
         { withCredentials: true }
       );
-        localStorage.setItem("userId", res.data.id);
+
+      localStorage.setItem("userId", res.data.id);
       alert(`User created with ID: ${res.data.userId}`);
+
+      // Redirect to /login after successful signup
+      navigate("/login");
     } catch (err) {
       alert(err.response?.data?.error || "Signup failed");
     }
@@ -69,18 +76,12 @@ const Signup = () => {
         {/* Navbar links */}
         <ul className="hidden md:flex space-x-6 items-center">
           <li>
-            <a
-              href="#"
-              className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors"
-            >
+            <a href="/login" className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
               Login
             </a>
           </li>
           <li>
-            <a
-              href="#"
-              className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors"
-            >
+            <a href="/signup" className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
               Signup
             </a>
           </li>
@@ -103,12 +104,12 @@ const Signup = () => {
         {menuOpen && (
           <ul className="absolute top-16 left-1/2 transform -translate-x-1/2 flex flex-col bg-black/40 backdrop-blur-lg rounded-xl py-4 px-6 space-y-3 md:hidden z-20">
             <li>
-              <a href="#" className="hover:text-yellow-300 transition-colors">
+              <a href="/login" className="hover:text-yellow-300 transition-colors">
                 Login
               </a>
             </li>
             <li>
-              <a href="#" className="hover:text-yellow-300 transition-colors">
+              <a href="/signup" className="hover:text-yellow-300 transition-colors">
                 Signup
               </a>
             </li>
@@ -155,13 +156,12 @@ const Signup = () => {
 
         <div className="mt-6 text-white/80 text-sm">
           Already have an account?{" "}
-          <a href="#" className="text-yellow-300 hover:underline">
+          <a href="/login" className="text-yellow-300 hover:underline">
             Login
           </a>
         </div>
       </div>
 
-      {/* Fade-in animation */}
       <style>
         {`
           @keyframes fadeIn {
