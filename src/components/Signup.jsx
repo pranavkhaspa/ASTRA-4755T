@@ -43,7 +43,8 @@ const Signup = () => {
         { username: fullName, email, password },
         { withCredentials: true }
       );
-      alert(`User created with ID: ${res.data.id}`);
+        localStorage.setItem("userId", res.data.id);
+      alert(`User created with ID: ${res.data.userId}`);
     } catch (err) {
       alert(err.response?.data?.error || "Signup failed");
     }

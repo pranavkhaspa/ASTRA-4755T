@@ -11,10 +11,14 @@ const Session = ({ userId }) => {
       return;
     }
     try {
-      const res = await axios.post(
-        "https://astra-c8r4.onrender.com/api/session/start",
-        { userIdea: idea, userId }
-      );
+     
+    const res = await axios.post(
+      "https://astra-c8r4.onrender.com/api/session/start",
+      { userIdea: idea, userId },
+      { withCredentials: true }
+    );
+    localStorage.setItem("sessionId", res.data.sessionId);
+      
       alert(`Session created with ID: ${res.data.sessionId}`);
       setIdea("");
     } catch (err) {
