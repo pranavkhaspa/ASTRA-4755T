@@ -1,14 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FiMenu } from "react-icons/fi";
 import axios from "axios";
+import { gsap } from "gsap";
 
 const Login = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const backgroundGifUrl =
-    "https://media.giphy.com/media/3o7TKtnuHOHHUjR38Y/giphy.gif"; // example scenery GIF
+  const cardRef = useRef(null);
+  const blob1Ref = useRef(null);
+  const blob2Ref = useRef(null);
+
+  useEffect(() => {
+    // Animate card entrance
+    gsap.from(cardRef.current, { y: 50, opacity: 0, duration: 1, ease: "power3.out" });
+
+    // Floating blobs animation
+    gsap.to(blob1Ref.current, {
+      y: 20,
+      x: 20,
+      repeat: -1,
+      yoyo: true,
+      duration: 8,
+      ease: "sine.inOut",
+    });
+    gsap.to(blob2Ref.current, {
+      y: -20,
+      x: -25,
+      repeat: -1,
+      yoyo: true,
+      duration: 10,
+      ease: "sine.inOut",
+    });
+  }, []);
 
   const handleLogin = async () => {
     try {
@@ -24,20 +49,47 @@ const Login = () => {
   };
 
   return (
-    <div
-      className="relative min-h-screen overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgroundGifUrl})` }}
-    >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/50"></div>
+    <div className="relative w-screen h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 overflow-hidden">
+      {/* Floating blobs */}
+      <div
+        ref={blob1Ref}
+        className="absolute w-80 h-80 bg-pink-500/40 rounded-full filter blur-3xl mix-blend-multiply top-20 left-20"
+      ></div>
+      <div
+        ref={blob2Ref}
+        className="absolute w-96 h-96 bg-yellow-400/30 rounded-full filter blur-3xl mix-blend-multiply bottom-20 right-20"
+      ></div>
 
-      {/* Pulsing circles */}
-      <div className="absolute top-0 left-1/4 w-72 h-72 bg-yellow-800 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"></div>
-      <div className="absolute bottom-20 right-1/4 w-96 h-96 bg-orange-900 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"></div>
+      {/* Capsule Navbar */}
+      <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 flex justify-between items-center bg-black/30 backdrop-blur-lg text-white px-8 py-3 rounded-full shadow-lg z-10 space-x-6">
+        <div className="font-bold text-2xl tracking-widest">Astra</div>
 
-      {/* Capsule navbar centered */}
-      <nav className="absolute top-10 left-1/2 transform -translate-x-1/2 flex justify-between items-center bg-brown-700/90 text-white px-8 py-3 rounded-full shadow-lg z-10">
-        <div className="font-bold text-xl tracking-widest">Astra</div>
+        {/* Navbar links */}
+        <ul className="hidden md:flex space-x-6 items-center">
+          <li>
+            <a
+              href="#"
+              className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors"
+            >
+              Login
+            </a>
+          </li>
+          <li>
+            <a
+              href="#"
+              className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors"
+            >
+              Signup
+            </a>
+          </li>
+        </ul>
+
+        {/* Capsule rainbow button */}
+        <button className="hidden md:block px-5 py-2 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-pink-500 text-white font-semibold shadow-lg transition-all duration-500 hover:from-purple-500 hover:via-pink-500 hover:to-yellow-400 hover:scale-105 transform">
+          Get Started
+        </button>
+
+        {/* Mobile menu toggle */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="text-white text-3xl md:hidden focus:outline-none"
@@ -45,62 +97,70 @@ const Login = () => {
           <FiMenu />
         </button>
 
-        <ul
-          className={`md:flex md:items-center md:space-x-8 absolute md:static bg-brown-700/90 w-full left-0 md:w-auto md:bg-transparent transition-all duration-300 ${
-            menuOpen ? "top-16 block" : "top-[-200px] hidden"
-          }`}
-        >
-          <li>
-            <a className="block py-2 px-6 hover:text-yellow-300 transition-colors" href="#">
-              Login
-            </a>
-          </li>
-          <li>
-            <a className="block py-2 px-6 hover:text-yellow-300 transition-colors" href="#">
-              Signup
-            </a>
-          </li>
-        </ul>
+        {/* Mobile menu */}
+        {menuOpen && (
+          <ul className="absolute top-16 left-1/2 transform -translate-x-1/2 flex flex-col bg-black/40 backdrop-blur-lg rounded-xl py-4 px-6 space-y-3 md:hidden z-20">
+            <li>
+              <a href="#" className="hover:text-yellow-300 transition-colors">
+                Login
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-yellow-300 transition-colors">
+                Signup
+              </a>
+            </li>
+          </ul>
+        )}
       </nav>
 
-      {/* Login card */}
-      <div className="relative z-10 flex justify-center items-center pt-32 px-4">
-        <div className="bg-white/20 backdrop-blur-md rounded-3xl shadow-xl p-10 max-w-md w-full">
-          <h2 className="text-3xl font-bold mb-6 text-white text-center">Login</h2>
+      {/* Login Card */}
+      <div
+        ref={cardRef}
+        className="relative z-10 w-full max-w-md p-12 bg-white/40 backdrop-blur-2xl border border-white/30 rounded-3xl shadow-2xl flex flex-col items-center animate-fadeIn"
+      >
+        <h2 className="text-4xl font-extrabold mb-4 text-white text-center">Welcome Back</h2>
+        <p className="text-white/90 mb-8 text-center">Enter your credentials to login</p>
 
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full mb-4 px-5 py-3 rounded-xl border border-white/50 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent transition-all"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full mb-6 px-5 py-3 rounded-xl border border-white/50 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:border-transparent transition-all"
-          />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full mb-4 px-5 py-3 rounded-xl border border-white/50 bg-white/30 text-white placeholder-white/80 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300 hover:scale-[1.02]"
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full mb-6 px-5 py-3 rounded-xl border border-white/50 bg-white/30 text-white placeholder-white/80 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all duration-300 hover:scale-[1.02]"
+        />
 
-          <button
-            onClick={handleLogin}
-            className="w-full px-6 py-3 bg-yellow-800 hover:bg-yellow-900 text-white rounded-xl shadow-lg transition-all transform hover:-translate-y-1"
-          >
-            Login
-          </button>
+        <button
+          onClick={handleLogin}
+          className="w-full px-6 py-3 bg-gradient-to-r from-red-500 via-yellow-500 to-pink-500 text-white rounded-xl shadow-lg font-semibold transition-all duration-500 transform hover:scale-105 hover:from-purple-500 hover:via-pink-500 hover:to-yellow-400"
+        >
+          Login
+        </button>
+
+        <div className="mt-6 text-white/80 text-sm">
+          Don't have an account?{" "}
+          <a href="#" className="text-yellow-300 hover:underline">
+            Sign Up
+          </a>
         </div>
       </div>
 
-      {/* Pulsing animation */}
+      {/* Fade-in animation for card */}
       <style>
         {`
-          .animate-pulse-slow {
-            animation: pulse 6s ease-in-out infinite;
+          @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
           }
-          @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.2); opacity: 0.5; }
+          .animate-fadeIn {
+            animation: fadeIn 1s ease-out forwards;
           }
         `}
       </style>

@@ -1,121 +1,200 @@
 import React, { useState } from "react";
-import { FiMenu } from "react-icons/fi";
 import axios from "axios";
 
 const Session = ({ userId }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [idea, setIdea] = useState("");
 
-  const backgroundImageUrl =
-    "https://images.unsplash.com/photo-1581092338117-927d4b06ee5b?auto=format&fit=crop&w=1470&q=80";
-
   const handleCreateSession = async () => {
     if (!idea || !userId) {
       alert("Please enter an idea and ensure userId is available.");
       return;
     }
-
     try {
       const res = await axios.post(
         "https://astra-c8r4.onrender.com/api/session/start",
-        {
-          userIdea: idea,
-          userId: userId,
-        }
+        { userIdea: idea, userId }
       );
       alert(`Session created with ID: ${res.data.sessionId}`);
-      setIdea(""); // optional: clear input after creation
+      setIdea("");
     } catch (err) {
-      console.error(err.response || err);
       alert(err.response?.data?.error || "Failed to create session");
     }
   };
 
-  return (
-    <div
-      className="relative min-h-screen overflow-hidden bg-cover bg-center"
-      style={{ backgroundImage: `url(${backgroundImageUrl})` }}
+  const ArrowIcon = () => (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="text-white w-6 h-6"
     >
-      <div className="absolute inset-0 bg-black/40"></div>
+      <path
+        d="M12 5L12 19M12 5L6 11M12 5L18 11"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
 
-      {/* Floating shapes */}
-      <div className="absolute top-0 left-0 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"></div>
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"></div>
+  const MenuIcon = () => (
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  );
 
-      {/* Navbar */}
-      <nav className="bg-black/80 text-white px-6 py-4 flex justify-between items-center relative z-10 shadow-lg">
-        <div className="bg-black/90 px-5 py-2 rounded-full border border-white/20 shadow-md">
-          <h1 className="text-xl font-bold tracking-widest">Astra</h1>
-        </div>
+  return (
+    <div className="relative w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 overflow-hidden">
+      
+      {/* Floating Blobs */}
+      <div
+        className="absolute w-80 h-80 bg-pink-500/40 rounded-full filter blur-3xl mix-blend-multiply top-20 left-20 animate-blob1"
+      ></div>
+      <div
+        className="absolute w-96 h-96 bg-yellow-400/30 rounded-full filter blur-3xl mix-blend-multiply bottom-20 right-20 animate-blob2"
+      ></div>
 
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="text-white text-3xl md:hidden focus:outline-none"
-        >
-          <FiMenu />
-        </button>
-
-        <ul
-          className={`md:flex md:items-center md:space-x-8 absolute md:static bg-black/80 w-full left-0 md:w-auto md:bg-transparent transition-all duration-300 ${
-            menuOpen ? "top-16 block" : "top-[-200px] hidden"
-          }`}
-        >
-          <li>
-            <a
-              className="block py-2 px-6 hover:text-purple-400 transition-colors"
-              href="#"
-            >
-              Dashboard
-            </a>
-          </li>
-          <li>
-            <a
-              className="block py-2 px-6 hover:text-purple-400 transition-colors"
-              href="#"
-            >
-              Workspace
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      {/* Main Content */}
-      <div className="relative z-10 flex justify-center items-center pt-20 px-4">
-        <div className="bg-white/30 backdrop-blur-md rounded-3xl shadow-xl p-10 max-w-lg w-full">
-          <h2 className="text-3xl font-bold mb-6 text-white text-center">
-            Welcome to the Session
-          </h2>
-
-          <input
-            type="text"
-            placeholder="Enter an idea"
-            value={idea}
-            onChange={(e) => setIdea(e.target.value)}
-            className="w-full mb-6 px-5 py-3 rounded-xl border border-white/50 bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all"
-          />
-
-          <div className="flex justify-center gap-6">
-            <button
-              onClick={handleCreateSession}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-lg transition-all transform hover:-translate-y-1"
-            >
-              Create Session
-            </button>
-          </div>
-        </div>
+      {/* Background Text */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <h1 className="text-[28vw] md:text-[20rem] font-black text-white/5 tracking-tighter leading-none select-none animate-bg-text">
+          ASTRA
+        </h1>
       </div>
 
-      <style>
-        {`
-          .animate-pulse-slow {
-            animation: pulse 6s ease-in-out infinite;
-          }
-          @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.3; }
-            50% { transform: scale(1.2); opacity: 0.5; }
-          }
-        `}
-      </style>
+      {/* Navbar with Dropdown */}
+      <nav className="absolute top-6 left-1/2 transform -translate-x-1/2 flex justify-between items-center bg-black/30 backdrop-blur-lg text-white px-10 py-3 rounded-full shadow-lg z-10 w-[90%] max-w-6xl space-x-6">
+        <div className="font-bold text-2xl tracking-widest">ASTRA</div>
+
+        {/* Desktop Links */}
+        <ul className="hidden md:flex space-x-8 items-center relative text-sm font-medium tracking-wider">
+          <li>
+            <a href="#" className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
+              DASHBOARD
+            </a>
+          </li>
+
+          {/* Workspace Dropdown */}
+          <li className="relative group">
+            <button className="px-4 py-2 rounded-full hover:bg-white/20 transition-colors">
+              WORKSPACE
+            </button>
+            <ul className="absolute top-full left-0 mt-2 w-48 bg-black/80 backdrop-blur-md rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transform scale-95 group-hover:scale-100 transition-all duration-300 z-20">
+              <li>
+                <a href="#" className="block px-4 py-2 text-white hover:bg-white/20 transition-colors rounded-t-xl">
+                  Project Alpha
+                </a>
+              </li>
+              <li>
+                <a href="#" className="block px-4 py-2 text-white hover:bg-white/20 transition-colors">
+                  Project Beta
+                </a>
+              </li>
+              <li>
+                <a href="#" className="block px-4 py-2 text-white hover:bg-white/20 transition-colors rounded-b-xl">
+                  Project Gamma
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        {/* Get Started Button */}
+        <button className="hidden md:block px-6 py-2 rounded-full bg-gradient-to-r from-red-500 via-yellow-500 to-pink-500 text-white font-semibold shadow-lg transition-all duration-500 hover:from-purple-500 hover:via-pink-500 hover:to-yellow-400 hover:scale-105 transform">
+          Get Started
+        </button>
+
+        {/* Mobile Menu Toggle */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="text-white text-3xl md:hidden focus:outline-none z-30"
+        >
+          <MenuIcon />
+        </button>
+      </nav>
+
+      {/* Mobile Menu Overlay */}
+      {menuOpen && (
+        <div className="md:hidden absolute top-16 left-1/2 transform -translate-x-1/2 flex flex-col bg-black/40 backdrop-blur-lg rounded-xl py-4 px-6 space-y-3 z-20">
+          <ul className="flex flex-col text-center space-y-3 text-xl">
+            <li>
+              <a href="#" onClick={() => setMenuOpen(false)} className="hover:text-yellow-300 transition-colors">
+                DASHBOARD
+              </a>
+            </li>
+            <li>
+              <a href="#" onClick={() => setMenuOpen(false)} className="hover:text-yellow-300 transition-colors">
+                WORKSPACE
+              </a>
+            </li>
+          </ul>
+        </div>
+      )}
+
+      {/* Main Content Input Form */}
+      <main className="relative z-10 flex flex-col items-center w-full max-w-2xl px-4 animate-content-fade-in">
+        <div className="relative w-full">
+          <div className="relative bg-white/30 border border-white/30 rounded-3xl shadow-2xl backdrop-blur-2xl">
+            <input
+              type="text"
+              placeholder="What do you want to know?"
+              value={idea}
+              onChange={(e) => setIdea(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleCreateSession()}
+              className="w-full h-20 pl-6 pr-20 bg-transparent text-lg text-white placeholder-white/80 focus:outline-none"
+            />
+            <button
+              onClick={handleCreateSession}
+              className="absolute top-1/2 right-4 transform -translate-y-1/2 w-12 h-12 bg-gradient-to-r from-red-500 via-yellow-500 to-pink-500 rounded-xl flex items-center justify-center transition-all duration-300 hover:from-purple-500 hover:via-pink-500 hover:to-yellow-400 hover:scale-105"
+              aria-label="Create Session"
+            >
+              <ArrowIcon />
+            </button>
+          </div>
+          <div className="absolute bottom-[-8px] left-1/2 -translate-x-1/2 w-6 h-6 bg-white/30 border-r border-b border-white/30 transform rotate-45 -z-10"></div>
+        </div>
+      </main>
+
+      <style>{`
+        @keyframes contentFadeIn {
+          from { opacity: 0; transform: translateY(50px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-content-fade-in { animation: contentFadeIn 1s ease-out 0.5s forwards; }
+
+        @keyframes blob1Animation {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(20px, 20px) scale(1.1); }
+        }
+        .animate-blob1 { animation: blob1Animation 8s ease-in-out infinite; }
+
+        @keyframes blob2Animation {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-25px, -20px) scale(1.1); }
+        }
+        .animate-blob2 { animation: blob2Animation 10s ease-in-out infinite; }
+
+        @keyframes bgTextFadeIn {
+          from { opacity: 0; transform: scale(1.2); }
+          to { opacity: 0.05; transform: scale(1); }
+        }
+        .animate-bg-text { animation: bgTextFadeIn 2s ease-out forwards; }
+      `}</style>
     </div>
   );
 };
