@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const Session = ({ userId }) => {
+const Session = () => { // removed userId prop
   const [menuOpen, setMenuOpen] = useState(false);
   const [idea, setIdea] = useState("");
+
+  // Get userId from localStorage
+  const userId = localStorage.getItem("userId");
 
   // Handle creating a new session
   const handleCreateSession = async () => {
@@ -69,7 +72,6 @@ const Session = ({ userId }) => {
 
   return (
     <div className="relative w-screen h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 overflow-hidden">
-      
       {/* Floating Blobs */}
       <div className="absolute w-80 h-80 bg-pink-500/40 rounded-full filter blur-3xl mix-blend-multiply top-20 left-20 animate-blob1"></div>
       <div className="absolute w-96 h-96 bg-yellow-400/30 rounded-full filter blur-3xl mix-blend-multiply bottom-20 right-20 animate-blob2"></div>
