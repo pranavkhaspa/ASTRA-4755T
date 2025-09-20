@@ -46,7 +46,7 @@ const Login = () => {
         { withCredentials: true }
       );
 
-      localStorage.setItem("userId", res.data.id);
+      localStorage.setItem("userId", res.data.userId);
       
       alert(res.data.message || "Login successful");
 
