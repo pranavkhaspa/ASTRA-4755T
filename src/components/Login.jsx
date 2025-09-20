@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { FiMenu } from "react-icons/fi";
 import axios from "axios";
 import { gsap } from "gsap";
-import { useNavigate } from "react-router-dom"; // <-- import useNavigate
+import { useNavigate } from "react-router-dom";
 
-const Login = (props) => {
+const Login = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +13,7 @@ const Login = (props) => {
   const blob1Ref = useRef(null);
   const blob2Ref = useRef(null);
 
-  const navigate = useNavigate(); // <-- initialize navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Animate card entrance
@@ -39,25 +39,24 @@ const Login = (props) => {
   }, []);
 
   const handleLogin = async () => {
-  try {
-    const res = await axios.post(
-      "https://astra-c8r4.onrender.com/api/users/login",
-      { email, password },
-      { withCredentials: true }
-    );
+    try {
+      const res = await axios.post(
+        "https://astra-c8r4.onrender.com/api/users/login",
+        { email, password },
+        { withCredentials: true }
+      );
 
-    const userId = res.data.userId;  // <-- FIX: get from response
-    localStorage.setItem("userId", userId);
+      const userId = res.data.userId; // ✅ fixed: capture from response
+      localStorage.setItem("userId", userId);
 
-    alert(res.data.message || "Login successful");
+      alert(res.data.message || "Login successful");
 
-    // Redirect to /session after successful login
-    navigate("/session", { state: { userId } });
-  } catch (err) {
-    alert(err.response?.data?.error || "Login failed");
-  }
-};
-
+      // ✅ pass userId correctly
+      navigate("/session", { state: { userId } });
+    } catch (err) {
+      alert(err.response?.data?.error || "Login failed");
+    }
+  };
 
   return (
     <div className="relative w-screen h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 overflow-hidden">
