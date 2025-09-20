@@ -47,6 +47,7 @@ const Login = () => {
       );
 
       localStorage.setItem("userId", res.data.id);
+      
       alert(res.data.message || "Login successful");
 
       // Redirect to /session after successful login

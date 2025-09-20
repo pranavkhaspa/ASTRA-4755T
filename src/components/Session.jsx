@@ -7,6 +7,7 @@ const Session = () => { // removed userId prop
 
   // Get userId from localStorage
   const userId = localStorage.getItem("userId");
+console.log({ userIdea: idea, userId });
 
   // Handle creating a new session
   const handleCreateSession = async () => {
