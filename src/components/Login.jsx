@@ -39,23 +39,25 @@ const Login = (props) => {
   }, []);
 
   const handleLogin = async () => {
-    try {
-      const res = await axios.post(
-        "https://astra-c8r4.onrender.com/api/users/login",
-        { email, password },
-        { withCredentials: true }
-      );
+  try {
+    const res = await axios.post(
+      "https://astra-c8r4.onrender.com/api/users/login",
+      { email, password },
+      { withCredentials: true }
+    );
 
-     localStorage.setItem("userId", res.data.userId);
-      
-      alert(res.data.message || "Login successful");
+    const userId = res.data.userId;  // <-- FIX: get from response
+    localStorage.setItem("userId", userId);
 
-      // Redirect to /session after successful login
-       navigate("/session", { state: { userId } });
-    } catch (err) {
-      alert(err.response?.data?.error || "Login failed");
-    }
-  };
+    alert(res.data.message || "Login successful");
+
+    // Redirect to /session after successful login
+    navigate("/session", { state: { userId } });
+  } catch (err) {
+    alert(err.response?.data?.error || "Login failed");
+  }
+};
+
 
   return (
     <div className="relative w-screen h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 overflow-hidden">
