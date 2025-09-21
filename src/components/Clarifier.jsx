@@ -4,38 +4,42 @@ import axios from "axios";
 
 const Clairifier = () => {
   const location = useLocation();
-  const { sessionId, userIdea } = location.state || {};
+  const { sessionId } = location.state || {};
 
-  const [questions, setQuestions] = useState([]); // store questions
-  const [answers, setAnswers] = useState({});     // store answers per question
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(true);   // loading state
-  const [fetchError, setFetchError] = useState(""); // error state
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
+  const [conflicts, setConflicts] = useState([]);
+  const [resolvingConflicts, setResolvingConflicts] = useState(false);
+  const [conflictError, setConflictError] = useState("");
+
+  // Fetch clarifier questions
   useEffect(() => {
-    if (sessionId && userIdea) {
-      setLoading(true);
-      setFetchError("");
+    if (!sessionId) return;
 
-      axios.post("https://astra-c8r4.onrender.com/api/agents/clarifier/start", {
-        sessionId,
-        userIdea,
-      })
-      .then(res => {
-        console.log("Clarifier started:", res.data);
-        // res.data.questions is an array of strings
+    setLoading(true);
+    setFetchError("");
+
+    axios
+      .post(
+        "https://astra-c8r4.onrender.com/api/agents/clarifier/start",
+        { sessionId }
+      )
+      .then((res) => {
         setQuestions(res.data.questions || []);
       })
-      .catch(err => {
+      .catch((err) => {
         console.error(err);
-        setFetchError(err.response?.data?.error || "Failed to fetch questions");
+        setFetchError(err.response?.data?.message || "Failed to fetch questions");
       })
       .finally(() => setLoading(false));
-    }
-  }, [sessionId, userIdea]);
+  }, [sessionId]);
 
   const handleAnswerChange = (index, value) => {
-    setAnswers(prev => ({ ...prev, [index]: value }));
+    setAnswers((prev) => ({ ...prev, [index]: value }));
   };
 
   const handleSubmitAnswers = async (e) => {
@@ -46,27 +50,38 @@ const Clairifier = () => {
       return;
     }
 
-    // Format answers as array of objects with questionId and answer
-    const formattedAnswers = questions.map((_, idx) => ({
+    const formattedAnswers = questions.map((q, idx) => ({
       questionId: idx,
-      answer: answers[idx] || ""
+      answer: answers[idx] || "",
     }));
 
     try {
-      // ✅ Submit to conflict-resolver endpoint instead
-      const response = await axios.post(
-        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver",
-        {
-          sessionId,
-          answers: formattedAnswers,
-        }
-      );
+      setLoading(true);
+      setSubmitted(false);
+      setConflictError("");
 
-      console.log("Answers submitted to conflict resolver:", response.data);
+      // Submit answers
+      await axios.post(
+        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit",
+        { sessionId, userAnswers: formattedAnswers }
+      );
       setSubmitted(true);
+
+      // Automatically run conflict resolver
+      setResolvingConflicts(true);
+      const conflictRes = await axios.post(
+        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver",
+        { sessionId }
+      );
+      setConflicts(conflictRes.data.conflictOutput?.conflicts || []);
     } catch (error) {
-      console.error("Error submitting answers:", error);
-      alert(error.response?.data?.error || "Failed to submit answers. Try again.");
+      console.error(error);
+      setConflictError(
+        error.response?.data?.message || "Failed to submit answers or resolve conflicts"
+      );
+    } finally {
+      setLoading(false);
+      setResolvingConflicts(false);
     }
   };
 
@@ -74,7 +89,6 @@ const Clairifier = () => {
     <div className="p-10 min-h-screen bg-gray-900 text-white">
       <h1 className="text-3xl font-bold mb-4">Clairifier</h1>
       <p><strong>Session ID:</strong> {sessionId}</p>
-      <p><strong>User Idea:</strong> {userIdea}</p>
 
       {loading ? (
         <p className="mt-6 text-yellow-300 font-semibold">Loading questions...</p>
@@ -105,7 +119,35 @@ const Clairifier = () => {
           </button>
         </form>
       ) : (
-        <p className="mt-6 text-green-400 font-bold text-xl">Answers submitted successfully!</p>
+        <>
+          <p className="mt-6 text-green-400 font-bold text-xl">
+            Answers submitted successfully!
+          </p>
+
+          {resolvingConflicts ? (
+            <p className="mt-4 text-yellow-300 font-semibold">Resolving conflicts...</p>
+          ) : conflictError ? (
+            <p className="mt-4 text-red-500 font-semibold">{conflictError}</p>
+          ) : conflicts.length === 0 ? (
+            <p className="mt-4 text-green-300 font-semibold">No conflicts found!</p>
+          ) : (
+            <div className="mt-6">
+              <h2 className="text-2xl font-bold mb-3">Identified Conflicts:</h2>
+              <ul className="space-y-4">
+                {conflicts.map((conflict, idx) => (
+                  <li key={idx} className="bg-gray-800 p-4 rounded">
+                    <p className="font-semibold">Issue: {conflict.issue}</p>
+                    <ul className="list-disc list-inside mt-2">
+                      {conflict.options.map((opt, i) => (
+                        <li key={i}>{opt}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
