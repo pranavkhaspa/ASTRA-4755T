@@ -14,8 +14,6 @@ const Clairifier = () => {
 
   useEffect(() => {
     if (sessionId && userIdea) {
-      console.log("Generating clarifying questions for:", userIdea, "in session:", sessionId);
-
       setLoading(true);
       setFetchError("");
 
@@ -25,7 +23,7 @@ const Clairifier = () => {
       })
       .then(res => {
         console.log("Clarifier started:", res.data);
-        // Ensure questions array exists
+        // res.data.questions is an array of strings
         setQuestions(res.data.questions || []);
       })
       .catch(err => {
@@ -36,8 +34,8 @@ const Clairifier = () => {
     }
   }, [sessionId, userIdea]);
 
-  const handleAnswerChange = (id, value) => {
-    setAnswers(prev => ({ ...prev, [id]: value }));
+  const handleAnswerChange = (index, value) => {
+    setAnswers(prev => ({ ...prev, [index]: value }));
   };
 
   const handleSubmitAnswers = async (e) => {
@@ -49,8 +47,8 @@ const Clairifier = () => {
     }
 
     // Convert answers object to array format expected by backend
-    const formattedAnswers = Object.entries(answers).map(([questionId, answer]) => ({
-      questionId,
+    const formattedAnswers = Object.entries(answers).map(([index, answer]) => ({
+      question: questions[index], // use question string
       answer,
     }));
 
@@ -71,7 +69,7 @@ const Clairifier = () => {
   };
 
   return (
-    <div className="p-10 text-white min-h-screen bg-gray-900">
+    <div className="p-10 min-h-screen bg-gray-900 text-white">
       <h1 className="text-3xl font-bold mb-4">Clairifier</h1>
       <p><strong>Session ID:</strong> {sessionId}</p>
       <p><strong>User Idea:</strong> {userIdea}</p>
@@ -85,14 +83,14 @@ const Clairifier = () => {
       ) : !submitted ? (
         <form onSubmit={handleSubmitAnswers} className="mt-6 space-y-6">
           {questions.map((q, idx) => (
-            <div key={q.id || idx} className="flex flex-col">
-              <label className="font-semibold mb-2 text-lg">{q.text}</label>
+            <div key={idx} className="flex flex-col">
+              <label className="font-semibold mb-2 text-lg">{q}</label>
               <textarea
                 rows={4}
-                className="w-full p-3 rounded text-black"
+                className="w-full p-3 rounded bg-gray-800 text-white placeholder-gray-400"
                 placeholder="Type your answer here..."
-                value={answers[q.id] || ""}
-                onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                value={answers[idx] || ""}
+                onChange={(e) => handleAnswerChange(idx, e.target.value)}
               />
             </div>
           ))}
