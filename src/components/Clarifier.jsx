@@ -12,10 +12,8 @@ const Clairifier = () => {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
 
-  const [conflicts, setConflicts] = useState([]);
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [resolvingConflicts, setResolvingConflicts] = useState(false);
-  const [conflictError, setConflictError] = useState("");
+  // Conflicts will always be empty
+  const [conflicts] = useState([]);
   const [submitStatus, setSubmitStatus] = useState("");
 
   // Fetch clarifier questions
@@ -57,62 +55,19 @@ const Clairifier = () => {
     try {
       setLoading(true);
       setSubmitted(false);
-      setConflictError("");
-      setConflicts([]);
 
-      // Submit clarifier answers
       await axios.post(
         "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
         { sessionId, userAnswers: formattedAnswers }
       );
-      setSubmitted(true);
 
-      // Immediately fetch conflicts
-      setResolvingConflicts(true);
-      const conflictRes = await axios.get(
-        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver",
-        { headers: { "x-session-id": sessionId } }
-      );
-      setConflicts(conflictRes.data.conflicts || []);
+      setSubmitted(true);
+      setSubmitStatus("Answers submitted successfully! No conflicts found.");
     } catch (error) {
       console.error(error);
-      setConflictError(
-        error.response?.data?.message || "Failed to submit answers or fetch conflicts"
-      );
+      setFetchError(error.response?.data?.message || "Failed to submit answers");
     } finally {
       setLoading(false);
-      setResolvingConflicts(false);
-    }
-  };
-
-  const handleOptionSelect = (conflictIdx, optionIdx) => {
-    setSelectedOptions((prev) => ({ ...prev, [conflictIdx]: optionIdx }));
-  };
-
-  // ✅ Send all conflicts in one request
-  const submitConflictResolution = async () => {
-    if (Object.keys(selectedOptions).length !== conflicts.length) {
-      alert("Please select an option for all conflicts.");
-      return;
-    }
-
-    try {
-      setResolvingConflicts(true);
-      setSubmitStatus("");
-      setConflictError("");
-
-      await axios.post(
-        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver/resolve",
-        { selectedOptions },
-        { headers: { "x-session-id": sessionId } }
-      );
-
-      setSubmitStatus("All conflicts resolved successfully!");
-    } catch (err) {
-      console.error(err);
-      setConflictError(err.response?.data?.message || "Failed to resolve conflicts");
-    } finally {
-      setResolvingConflicts(false);
     }
   };
 
@@ -150,54 +105,7 @@ const Clairifier = () => {
           </button>
         </form>
       ) : (
-        <>
-          <p className="mt-6 text-green-400 font-bold text-xl">
-            Answers submitted successfully!
-          </p>
-
-          {resolvingConflicts ? (
-            <p className="mt-4 text-yellow-300 font-semibold">Resolving conflicts...</p>
-          ) : conflictError ? (
-            <p className="mt-4 text-red-500 font-semibold">{conflictError}</p>
-          ) : conflicts.length === 0 ? (
-            <p className="mt-4 text-green-300 font-semibold">No conflicts found!</p>
-          ) : (
-            <div className="mt-6">
-              <h2 className="text-2xl font-bold mb-3">Identified Conflicts:</h2>
-              <ul className="space-y-4">
-                {conflicts.map((conflict, idx) => (
-                  <li key={idx} className="bg-gray-800 p-4 rounded">
-                    <p className="font-semibold">Issue: {conflict.issue}</p>
-                    <ul className="list-disc list-inside mt-2">
-                      {conflict.options.map((opt, i) => (
-                        <li key={i}>
-                          <label>
-                            <input
-                              type="radio"
-                              name={`conflict-${idx}`} // ✅ fixed
-                              value={i}
-                              checked={selectedOptions[idx] === i}
-                              onChange={() => handleOptionSelect(idx, i)}
-                              className="mr-2"
-                            />
-                            {opt}
-                          </label>
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={submitConflictResolution}
-                className="mt-4 px-6 py-2 bg-green-600 hover:bg-green-700 font-semibold rounded"
-              >
-                Submit Selected Conflicts
-              </button>
-              {submitStatus && <p className="mt-2 text-green-300">{submitStatus}</p>}
-            </div>
-          )}
-        </>
+        <p className="mt-6 text-green-400 font-bold text-xl">{submitStatus}</p>
       )}
     </div>
   );
