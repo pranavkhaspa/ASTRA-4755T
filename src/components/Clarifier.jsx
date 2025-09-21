@@ -39,34 +39,31 @@ const Clairifier = () => {
   };
 
   const handleSubmitAnswers = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (Object.keys(answers).length === 0) {
-      alert("Please answer the questions before submitting.");
-      return;
-    }
+  if (Object.keys(answers).length === 0) {
+    alert("Please answer the questions before submitting.");
+    return;
+  }
 
-    // ✅ FIX: send the actual question string, not index
-    const formattedAnswers = Object.entries(answers).map(([index, answer]) => ({
-      question: questions[index], // send string
-      answer,
-    }));
+  // Send as array of strings in same order as questions
+  const formattedAnswers = questions.map((_, idx) => answers[idx] || "");
 
-    try {
-      const response = await axios.post(
-        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
-        {
-          sessionId,
-          answers: formattedAnswers,
-        }
-      );
-      console.log("Answers submitted:", response.data);
-      setSubmitted(true);
-    } catch (error) {
-      console.error("Error submitting answers:", error);
-      alert(error.response?.data?.error || "Failed to submit answers. Try again.");
-    }
-  };
+  try {
+    const response = await axios.post(
+      "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
+      {
+        sessionId,
+        answers: formattedAnswers,
+      }
+    );
+    console.log("Answers submitted:", response.data);
+    setSubmitted(true);
+  } catch (error) {
+    console.error("Error submitting answers:", error);
+    alert(error.response?.data?.error || "Failed to submit answers. Try again.");
+  }
+};
 
   return (
     <div className="p-10 min-h-screen bg-gray-900 text-white">
