@@ -13,8 +13,10 @@ const Clairifier = () => {
   const [fetchError, setFetchError] = useState("");
 
   const [conflicts, setConflicts] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState({});
   const [resolvingConflicts, setResolvingConflicts] = useState(false);
   const [conflictError, setConflictError] = useState("");
+  const [submitStatus, setSubmitStatus] = useState("");
 
   // Fetch clarifier questions
   useEffect(() => {
@@ -59,28 +61,60 @@ const Clairifier = () => {
       setLoading(true);
       setSubmitted(false);
       setConflictError("");
+      setConflicts([]);
 
-      // Submit answers
+      // Submit clarifier answers
       await axios.post(
-        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
+        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit",
         { sessionId, userAnswers: formattedAnswers }
       );
       setSubmitted(true);
 
-      // Automatically run conflict resolver
+      // Immediately fetch conflicts using GET method
       setResolvingConflicts(true);
-      const conflictRes = await axios.post(
+      const conflictRes = await axios.get(
         "https://astra-c8r4.onrender.com/api/agents/conflict-resolver",
-        { sessionId }
+        { headers: { "x-session-id": sessionId } }
       );
-      setConflicts(conflictRes.data.conflictOutput?.conflicts || []);
+      setConflicts(conflictRes.data.conflicts || []);
     } catch (error) {
       console.error(error);
       setConflictError(
-        error.response?.data?.message || "Failed to submit answers or resolve conflicts"
+        error.response?.data?.message || "Failed to submit answers or fetch conflicts"
       );
     } finally {
       setLoading(false);
+      setResolvingConflicts(false);
+    }
+  };
+
+  const handleOptionSelect = (conflictIdx, optionIdx) => {
+    setSelectedOptions((prev) => ({ ...prev, [conflictIdx]: optionIdx }));
+  };
+
+  const submitConflictResolution = async () => {
+    if (Object.keys(selectedOptions).length !== conflicts.length) {
+      alert("Please select an option for all conflicts.");
+      return;
+    }
+
+    try {
+      setResolvingConflicts(true);
+      setSubmitStatus("");
+      setConflictError("");
+
+      // For now, submit the first selected option as the backend expects one choice
+      await axios.post(
+        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver/resolve",
+        { chosenOptionIndex: selectedOptions[0] }, // backend can later be updated for multiple choices
+        { headers: { "x-session-id": sessionId } }
+      );
+
+      setSubmitStatus("Conflict(s) resolved successfully!");
+    } catch (err) {
+      console.error(err);
+      setConflictError(err.response?.data?.message || "Failed to resolve conflicts");
+    } finally {
       setResolvingConflicts(false);
     }
   };
@@ -139,12 +173,31 @@ const Clairifier = () => {
                     <p className="font-semibold">Issue: {conflict.issue}</p>
                     <ul className="list-disc list-inside mt-2">
                       {conflict.options.map((opt, i) => (
-                        <li key={i}>{opt}</li>
+                        <li key={i}>
+                          <label>
+                            <input
+                              type="radio"
+                              name={`conflict-${idx}`}
+                              value={i}
+                              checked={selectedOptions[idx] === i}
+                              onChange={() => handleOptionSelect(idx, i)}
+                              className="mr-2"
+                            />
+                            {opt}
+                          </label>
+                        </li>
                       ))}
                     </ul>
                   </li>
                 ))}
               </ul>
+              <button
+                onClick={submitConflictResolution}
+                className="mt-4 px-6 py-2 bg-green-600 hover:bg-green-700 font-semibold rounded"
+              >
+                Submit Selected Conflicts
+              </button>
+              {submitStatus && <p className="mt-2 text-green-300">{submitStatus}</p>}
             </div>
           )}
         </>
