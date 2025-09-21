@@ -46,9 +46,9 @@ const Clairifier = () => {
       return;
     }
 
-    // Convert answers object to array format expected by backend
+    // ✅ Send backend the expected format with questionId
     const formattedAnswers = Object.entries(answers).map(([index, answer]) => ({
-      question: questions[index], // use question string
+      questionId: parseInt(index),
       answer,
     }));
 
