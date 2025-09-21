@@ -1,65 +1,107 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const Conflict = ({ sessionId, onComplete }) => {
-  const [options, setOptions] = useState([]);
+const Conflict = ({ sessionId }) => {
+  const [conflicts, setConflicts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
+  const [selectedOptions, setSelectedOptions] = useState({});
+  const [submitStatus, setSubmitStatus] = useState("");
 
   useEffect(() => {
     if (!sessionId) return;
 
-    const fetchOptions = async () => {
+    const fetchConflicts = async () => {
       setLoading(true);
       setFetchError("");
-
       try {
-        const res = await axios.post(
-          "https://astra-c8r4.onrender.com/api/agents/conflict-resolver",
-          { sessionId } // backend expects sessionId to fetch results
+        const res = await axios.get(
+          `https://astra-c8r4.onrender.com/api/agents/get-conflicts`,
+          { headers: { "x-session-id": sessionId } }
         );
-        console.log("Conflict options received:", res.data);
-        setOptions(res.data.options || []);
+        setConflicts(res.data.conflicts || []);
       } catch (err) {
         console.error(err);
-        setFetchError(err.response?.data?.error || "Failed to fetch options");
+        setFetchError(err.response?.data?.message || "Failed to generate conflicts");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOptions();
+    fetchConflicts();
   }, [sessionId]);
 
+  const handleOptionSelect = (conflictIdx, optionIdx) => {
+    setSelectedOptions(prev => ({ ...prev, [conflictIdx]: optionIdx }));
+  };
+
+  const submitResolution = async () => {
+    if (!sessionId) return;
+
+    try {
+      const resolvedIndices = Object.values(selectedOptions);
+      if (resolvedIndices.length !== conflicts.length) {
+        alert("Please select an option for all conflicts.");
+        return;
+      }
+
+      const res = await axios.post(
+        `https://astra-c8r4.onrender.com/api/agents/resolve-conflict`,
+        { chosenOptionIndex: resolvedIndices[0] }, // Backend currently accepts one choice
+        { headers: { "x-session-id": sessionId } }
+      );
+      setSubmitStatus(res.data.message || "Conflict resolved successfully!");
+    } catch (err) {
+      console.error(err);
+      setSubmitStatus(err.response?.data?.message || "Failed to resolve conflicts");
+    }
+  };
+
   return (
-    <div className="p-10 min-h-screen bg-gray-900 text-white flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6">Conflict Resolver</h1>
+    <div className="mt-8 w-full max-w-2xl">
+      <h2 className="text-2xl font-bold mb-4">Conflict Resolver</h2>
 
       {loading ? (
-        <p className="text-yellow-300 font-semibold">Loading options...</p>
+        <p className="text-yellow-300 font-semibold">Generating conflict options...</p>
       ) : fetchError ? (
         <p className="text-red-500 font-semibold">{fetchError}</p>
-      ) : options.length === 0 ? (
-        <p className="text-gray-300 font-semibold">No options available.</p>
+      ) : conflicts.length === 0 ? (
+        <p className="text-green-300 font-semibold">No conflicts found!</p>
       ) : (
-        <div className="w-full max-w-2xl space-y-4">
-          {options.map((opt, idx) => (
-            <div
-              key={idx}
-              className="p-4 bg-gray-800 rounded-lg border border-gray-700"
-            >
-              <p>{opt}</p>
-            </div>
-          ))}
-        </div>
+        <>
+          <ul className="space-y-4">
+            {conflicts.map((conflict, idx) => (
+              <li key={idx} className="bg-gray-800 p-4 rounded border border-gray-700">
+                <p className="font-semibold">Issue: {conflict.issue}</p>
+                <ul className="list-disc list-inside mt-2">
+                  {conflict.options.map((opt, i) => (
+                    <li key={i}>
+                      <label>
+                        <input
+                          type="radio"
+                          name={`conflict-${idx}`}
+                          value={i}
+                          checked={selectedOptions[idx] === i}
+                          onChange={() => handleOptionSelect(idx, i)}
+                          className="mr-2"
+                        />
+                        {opt}
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={submitResolution}
+            className="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded"
+          >
+            Resolve Selected Conflicts
+          </button>
+          {submitStatus && <p className="mt-2 text-green-300">{submitStatus}</p>}
+        </>
       )}
-
-      <button
-        className="mt-8 px-6 py-3 bg-blue-600 rounded hover:bg-blue-700 font-semibold"
-        onClick={onComplete}
-      >
-        Complete Step
-      </button>
     </div>
   );
 };
