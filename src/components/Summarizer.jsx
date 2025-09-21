@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import jsPDF from 'jspdf';
 
 const Summarizer = ({ sessionId }) => {
   const [summary, setSummary] = useState(null);
@@ -21,12 +20,14 @@ const Summarizer = ({ sessionId }) => {
       }
     };
 
-    fetchSummary();
+    if (sessionId) fetchSummary();
   }, [sessionId]);
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!summary) return;
 
+    // Dynamic import for Vercel + Vite compatibility
+    const { jsPDF } = await import('jspdf');
     const doc = new jsPDF('p', 'pt', 'a4');
     let y = 40;
 
@@ -36,15 +37,20 @@ const Summarizer = ({ sessionId }) => {
 
     const addText = (label, value) => {
       if (!value) return;
-      const text = `${label}: ${typeof value === 'object' ? JSON.stringify(value, null, 2) : value}`;
+      const text = `${label}: ${
+        typeof value === 'object' ? JSON.stringify(value, null, 2) : value
+      }`;
       const splitText = doc.splitTextToSize(text, 500);
       doc.setFontSize(12);
       doc.text(splitText, 40, y);
       y += splitText.length * 14 + 10;
-      if (y > 750) { doc.addPage(); y = 40; }
+      if (y > 750) {
+        doc.addPage();
+        y = 40;
+      }
     };
 
-    // Add main session info
+    // Main session info
     addText('Session ID', summary.sessionId);
     addText('User ID', summary.userId);
     addText('Project Idea', summary.projectIdea);
@@ -67,22 +73,22 @@ const Summarizer = ({ sessionId }) => {
     // Prioritization
     addText('Prioritization', summary.prioritization);
 
-    // Final Summary String
+    // Final summary string
     addText('Final Summary', summary.finalSummary);
 
-    doc.save(`Session_${sessionId}_Summary.pdf`);
+    doc.save(`Session_${summary.sessionId}_Summary.pdf`);
   };
 
   if (loading) return <p>Loading summary...</p>;
-  if (error) return <p>{error}</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto bg-white shadow rounded">
+    <div className="p-6 max-w-4xl mx-auto bg-white shadow rounded">
       <h1 className="text-2xl font-bold mb-4">Session Summary</h1>
 
-      <pre className="bg-gray-100 p-4 rounded overflow-x-auto">
-        {JSON.stringify(summary, null, 2)}
-      </pre>
+      <div className="bg-gray-100 p-4 rounded overflow-x-auto max-h-[70vh] overflow-y-auto">
+        <pre>{JSON.stringify(summary, null, 2)}</pre>
+      </div>
 
       <button
         onClick={downloadPDF}
