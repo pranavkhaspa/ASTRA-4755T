@@ -65,7 +65,7 @@ const Clairifier = () => {
 
       // Submit clarifier answers
       await axios.post(
-        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit",
+        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
         { sessionId, userAnswers: formattedAnswers }
       );
       setSubmitted(true);
