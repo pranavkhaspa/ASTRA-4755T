@@ -4,7 +4,7 @@ import Session from "./components/Session";
 import Signup from "./components/Signup";
 import Login from "./components/Login";
 import AgentsPage from "./components/AgentsPage";
-import Analyzer from "./components/Clarifier";
+import Analyzer from "./components/Analyzer";
 import Conflict from "./components/Conflict";
 import Validate from "./components/Validate";
 import Priorities from "./components/Priorities";
