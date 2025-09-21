@@ -1,11 +1,15 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: {
+
+  },
   build: {
     rollupOptions: {
-      external: ['jspdf'], // treat jspdf as external
+
     },
   },
 });
