@@ -60,11 +60,8 @@ const Clairifier = () => {
     setIsSubmitting(true);
 
     try {
-      // Reverting to an array of objects, as it's more standard.
-      // The 400 error is likely due to a data type mismatch (e.g., number vs. string for the ID).
-      // We will ensure the questionId is explicitly a string.
       const formattedAnswers = questions.map(q => ({
-        questionId: String(q.id), // FIX: Explicitly cast the ID to a string
+        questionId: q.id, // Reverting to number as it's the original type
         answer: answers[q.id] || ""
       }));
 
@@ -78,7 +75,8 @@ const Clairifier = () => {
 
       const response = await axios.post(
         "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
-        payload
+        payload,
+        { withCredentials: true } // FIX: Added withCredentials to maintain the session
       );
 
       console.log("Answers submitted:", response.data);
