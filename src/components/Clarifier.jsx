@@ -6,8 +6,8 @@ const Clairifier = () => {
   const location = useLocation();
   const { sessionId, userIdea } = location.state || {};
 
-  const [questions, setQuestions] = useState([]); // store questions
-  const [answers, setAnswers] = useState({});     // store answers per question
+  const [questions, setQuestions] = useState([]); // store questions with IDs
+  const [answers, setAnswers] = useState({});     // answers keyed by question ID
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(true);   // loading state
   const [fetchError, setFetchError] = useState(""); // error state
@@ -23,8 +23,12 @@ const Clairifier = () => {
       })
       .then(res => {
         console.log("Clarifier started:", res.data);
-        // res.data.questions is an array of strings
-        setQuestions(res.data.questions || []);
+        // Ensure each question has an id and text
+        // If backend sends strings, convert to objects
+        const formattedQuestions = res.data.questions.map((q, idx) => 
+          typeof q === "string" ? { id: idx, text: q } : q
+        );
+        setQuestions(formattedQuestions);
       })
       .catch(err => {
         console.error(err);
@@ -34,36 +38,39 @@ const Clairifier = () => {
     }
   }, [sessionId, userIdea]);
 
-  const handleAnswerChange = (index, value) => {
-    setAnswers(prev => ({ ...prev, [index]: value }));
+  const handleAnswerChange = (questionId, value) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
   const handleSubmitAnswers = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (Object.keys(answers).length === 0) {
-    alert("Please answer the questions before submitting.");
-    return;
-  }
+    if (Object.keys(answers).length === 0) {
+      alert("Please answer the questions before submitting.");
+      return;
+    }
 
-  // Send as array of strings in same order as questions
-  const formattedAnswers = questions.map((_, idx) => answers[idx] || "");
+    // Format answers as backend expects: [{questionId, answer}]
+    const formattedAnswers = questions.map(q => ({
+      questionId: q.id,
+      answer: answers[q.id] || ""
+    }));
 
-  try {
-    const response = await axios.post(
-      "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
-      {
-        sessionId,
-        answers: formattedAnswers,
-      }
-    );
-    console.log("Answers submitted:", response.data);
-    setSubmitted(true);
-  } catch (error) {
-    console.error("Error submitting answers:", error);
-    alert(error.response?.data?.error || "Failed to submit answers. Try again.");
-  }
-};
+    try {
+      const response = await axios.post(
+        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
+        {
+          sessionId,
+          answers: formattedAnswers,
+        }
+      );
+      console.log("Answers submitted:", response.data);
+      setSubmitted(true);
+    } catch (error) {
+      console.error("Error submitting answers:", error);
+      alert(error.response?.data?.error || "Failed to submit answers. Try again.");
+    }
+  };
 
   return (
     <div className="p-10 min-h-screen bg-gray-900 text-white">
@@ -79,15 +86,15 @@ const Clairifier = () => {
         <p className="mt-6 text-gray-300 font-semibold">No questions found.</p>
       ) : !submitted ? (
         <form onSubmit={handleSubmitAnswers} className="mt-6 space-y-6">
-          {questions.map((q, idx) => (
-            <div key={idx} className="flex flex-col">
-              <label className="font-semibold mb-2 text-lg">{q}</label>
+          {questions.map((q) => (
+            <div key={q.id} className="flex flex-col">
+              <label className="font-semibold mb-2 text-lg">{q.text}</label>
               <textarea
                 rows={4}
                 className="w-full p-3 rounded bg-gray-800 text-white placeholder-gray-400"
                 placeholder="Type your answer here..."
-                value={answers[idx] || ""}
-                onChange={(e) => handleAnswerChange(idx, e.target.value)}
+                value={answers[q.id] || ""}
+                onChange={(e) => handleAnswerChange(q.id, e.target.value)}
               />
             </div>
           ))}
