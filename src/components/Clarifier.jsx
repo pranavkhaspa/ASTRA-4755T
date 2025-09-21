@@ -26,10 +26,7 @@ const Clairifier = () => {
     setFetchError("");
 
     axios
-      .post(
-        "https://astra-c8r4.onrender.com/api/agents/clarifier/start",
-        { sessionId }
-      )
+      .post("https://astra-c8r4.onrender.com/api/agents/clarifier/start", { sessionId })
       .then((res) => {
         setQuestions(res.data.questions || []);
       })
@@ -70,7 +67,7 @@ const Clairifier = () => {
       );
       setSubmitted(true);
 
-      // Immediately fetch conflicts using GET method
+      // Immediately fetch conflicts
       setResolvingConflicts(true);
       const conflictRes = await axios.get(
         "https://astra-c8r4.onrender.com/api/agents/conflict-resolver",
@@ -92,6 +89,7 @@ const Clairifier = () => {
     setSelectedOptions((prev) => ({ ...prev, [conflictIdx]: optionIdx }));
   };
 
+  // 🔥 FIXED: loop through all conflicts instead of only selectedOptions[0]
   const submitConflictResolution = async () => {
     if (Object.keys(selectedOptions).length !== conflicts.length) {
       alert("Please select an option for all conflicts.");
@@ -103,14 +101,15 @@ const Clairifier = () => {
       setSubmitStatus("");
       setConflictError("");
 
-      // For now, submit the first selected option as the backend expects one choice
-      await axios.post(
-        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver/resolve",
-        { chosenOptionIndex: selectedOptions[0] }, // backend can later be updated for multiple choices
-        { headers: { "x-session-id": sessionId } }
-      );
+      for (const [conflictIdx, optionIdx] of Object.entries(selectedOptions)) {
+        await axios.post(
+          "https://astra-c8r4.onrender.com/api/agents/conflict-resolver/resolve",
+          { chosenOptionIndex: optionIdx },
+          { headers: { "x-session-id": sessionId } }
+        );
+      }
 
-      setSubmitStatus("Conflict(s) resolved successfully!");
+      setSubmitStatus("All conflicts resolved successfully!");
     } catch (err) {
       console.error(err);
       setConflictError(err.response?.data?.message || "Failed to resolve conflicts");
@@ -177,7 +176,7 @@ const Clairifier = () => {
                           <label>
                             <input
                               type="radio"
-                              name={`conflict-${idx}`}
+                              name={conflict-${idx}}
                               value={i}
                               checked={selectedOptions[idx] === i}
                               onChange={() => handleOptionSelect(idx, i)}
