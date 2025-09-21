@@ -9,6 +9,7 @@ import Conflict from "./components/Conflict";
 import Validate from "./components/Validate";
 import Priorities from "./components/Priorities";
 import Clarifier from "./components/Clarifier";
+import Summarizer from "./components/Summarizer";
 import "./output.css";
 import ProfileDashboard from "./components/ProfileDashboard";
 
@@ -17,7 +18,7 @@ function App() {
     <div className="max-w-full max-h-screen">
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/" element={<Signup />} />
         <Route path="/agents" element={<AgentsPage />} />
         <Route path="/conflict" element={<Conflict />} />
         <Route path="/priorities" element={<Priorities />} />
@@ -25,6 +26,7 @@ function App() {
         <Route path="/validate" element={<Validate />} />
         <Route path="/Profile" element={<ProfileDashboard/>}></Route>
         <Route path="/clarifier" element={<Clarifier/>}></Route>
+         <Route path="/summarizer" element={<Summarizer/>}></Route>
       </Routes>
     </div>
   );
