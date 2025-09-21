@@ -14,7 +14,7 @@ const Clairifier = () => {
       console.log("Generating clarifying questions for:", userIdea, "in session:", sessionId);
 
       // Start clarifier session
-      axios.post("https://astra-c8r4.onrender.com/api/clarifier/start", {
+      axios.post("https://astra-c8r4.onrender.com/api/agents/clarifier/start", {
         sessionId,
         userIdea,
       })
@@ -33,7 +33,7 @@ const Clairifier = () => {
 
     try {
       const response = await axios.post(
-        "https://astra-c8r4.onrender.com/api/clarifier/submit-answers",
+        "https://astra-c8r4.onrender.com/api/agents/clarifier/submit-answers",
         {
           sessionId,
           answers,
