@@ -25,6 +25,7 @@ const Clairifier = () => {
       })
       .then(res => {
         console.log("Clarifier started:", res.data);
+        // Ensure questions array exists
         setQuestions(res.data.questions || []);
       })
       .catch(err => {
@@ -70,7 +71,7 @@ const Clairifier = () => {
   };
 
   return (
-    <div className="p-10 text-white">
+    <div className="p-10 text-white min-h-screen bg-gray-900">
       <h1 className="text-3xl font-bold mb-4">Clairifier</h1>
       <p><strong>Session ID:</strong> {sessionId}</p>
       <p><strong>User Idea:</strong> {userIdea}</p>
@@ -82,28 +83,29 @@ const Clairifier = () => {
       ) : questions.length === 0 ? (
         <p className="mt-6 text-gray-300 font-semibold">No questions found.</p>
       ) : !submitted ? (
-        <form onSubmit={handleSubmitAnswers} className="mt-6 space-y-4">
+        <form onSubmit={handleSubmitAnswers} className="mt-6 space-y-6">
           {questions.map((q, idx) => (
             <div key={q.id || idx} className="flex flex-col">
-              <label className="font-semibold mb-1">{q.text}</label>
+              <label className="font-semibold mb-2 text-lg">{q.text}</label>
               <textarea
-                rows={3}
-                className="w-full p-2 rounded text-black"
-                placeholder="Your answer..."
+                rows={4}
+                className="w-full p-3 rounded text-black"
+                placeholder="Type your answer here..."
                 value={answers[q.id] || ""}
                 onChange={(e) => handleAnswerChange(q.id, e.target.value)}
               />
             </div>
           ))}
+
           <button
             type="submit"
-            className="mt-2 px-4 py-2 bg-blue-600 rounded hover:bg-blue-700"
+            className="mt-4 px-6 py-2 bg-blue-600 rounded hover:bg-blue-700 font-semibold"
           >
-            Submit Answers
+            Submit All Answers
           </button>
         </form>
       ) : (
-        <p className="mt-4 text-green-400 font-bold">Answers submitted successfully!</p>
+        <p className="mt-6 text-green-400 font-bold text-xl">Answers submitted successfully!</p>
       )}
     </div>
   );
