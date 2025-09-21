@@ -89,7 +89,7 @@ const Clairifier = () => {
     setSelectedOptions((prev) => ({ ...prev, [conflictIdx]: optionIdx }));
   };
 
-  // 🔥 FIXED: loop through all conflicts instead of only selectedOptions[0]
+  // ✅ Send all conflicts in one request
   const submitConflictResolution = async () => {
     if (Object.keys(selectedOptions).length !== conflicts.length) {
       alert("Please select an option for all conflicts.");
@@ -101,13 +101,11 @@ const Clairifier = () => {
       setSubmitStatus("");
       setConflictError("");
 
-      for (const [conflictIdx, optionIdx] of Object.entries(selectedOptions)) {
-        await axios.post(
-          "https://astra-c8r4.onrender.com/api/agents/conflict-resolver/resolve",
-          { chosenOptionIndex: optionIdx },
-          { headers: { "x-session-id": sessionId } }
-        );
-      }
+      await axios.post(
+        "https://astra-c8r4.onrender.com/api/agents/conflict-resolver/resolve",
+        { selectedOptions },
+        { headers: { "x-session-id": sessionId } }
+      );
 
       setSubmitStatus("All conflicts resolved successfully!");
     } catch (err) {
@@ -176,7 +174,7 @@ const Clairifier = () => {
                           <label>
                             <input
                               type="radio"
-                              name={conflict-${idx}}
+                              name={`conflict-${idx}`} // ✅ fixed
                               value={i}
                               checked={selectedOptions[idx] === i}
                               onChange={() => handleOptionSelect(idx, i)}
